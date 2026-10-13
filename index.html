@@ -45,21 +45,23 @@ function editList(title,key,base){if(!can())return;modal(title,'<form id="listFo
 function pinForm(){modal('Sblocca modifiche','<form id="pinForm"><input name="pin" type="password" placeholder="PIN" required autofocus><div class="actions"><button type="button" class="close">Annulla</button><button class="primary">Sblocca</button></div></form>');$('#pinForm').onsubmit=e=>{e.preventDefault();if(new FormData(e.target).get('pin')===db.pin){unlocked=true;close();render();toast('Modifica attivata.')}else toast('PIN non corretto.')}}
 function changePin(){if(!can())return;modal('Cambia PIN','<form id="pinChange"><label>PIN attuale<input name="old" type="password" required></label><label>Nuovo PIN (minimo 4 caratteri)<input name="new" type="password" minlength="4" required></label><label>Ripeti PIN<input name="check" type="password" minlength="4" required></label><div class="actions"><button type="button" class="close">Annulla</button><button class="primary">Salva</button></div></form>');$('#pinChange').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);if(f.get('old')!==db.pin)return toast('PIN attuale errato.');if(f.get('new')!==f.get('check'))return toast('I PIN non coincidono.');db.pin=f.get('new');save();close();toast('PIN modificato.')}}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.download='calendario-ufficio-tecnico-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),300)}
-function viewShow(sid){let sh=db.shows.find(s=>s.id===sid);if(!sh)return;let driveHtml=sh.driveLink?'<p><b>🔗 Link Drive:</b> <a href="'+esc(sh.driveLink)+'" target="_blank" style="color:#5046e5">Apri Drive</a></p>':'';modal('🎭 '+esc(sh.title||'Senza titolo'),'<div class="note"><p><b>Data:</b> '+esc(sh.date)+'</p><p><b>Orario:</b> '+esc(sh.time||'—')+'</p><p><b>Spazi:</b> '+(sh.spaces||[]).map(esc).join(' · ')+'</p><p><b>🧰 Attrezzatura:</b></p><pre class="eq">'+esc(sh.equipment||'—')+'</pre><p><b>Note:</b></p><pre class="eq">'+esc(sh.notes||'—')+'</pre>'+driveHtml+'</div><div class="actions"><button type="button" class="close">Chiudi</button>'+(unlocked?'<button data-edit-show="'+sh.id+'" class="primary">Modifica</button>':'')+'</div>');document.querySelectorAll('[data-edit-show]').forEach(b=>b.onclick=()=>{close();showForm(sh.id)})}
-function copyShiftCard(sid){
+function viewShow(sid){let sh=db.shows.find(s=>s.id===sid);if(!sh)return;let driveHtml=sh.driveLink?'<p><b>🔗 Link Drive:</b> <a href="'+esc(sh.driveLink)+'" target="_blank" style="color:#5046e5">Apri Drive</a></p>':'';modal('🎭 '+esc(sh.title||'Senza titolo'),'<div class="note"><p><b>Data:</b> '+esc(sh.date)+'</p><p><b>Orario:</b> '+esc(sh.time||'—')+'</p><p><b>Spazi:</b> '+(sh.spaces||[]).map(esc).join(' · ')+'</p><p><b>🧰 Attrezzatura:</b></p><pre class="eq">'+esc(sh.equipment||'—')+'</pre><p><b>Note:</b></p><pre class="eq">'+esc(sh.notes||'—')+'</pre>'+driveHtml+'</div><div class="actions"><button type="button" class="close">Chiudi</button>'+(unlocked?'<button data-edit-show="'+sh.id+'" class="primary">Modifica</button>':'')+'</div>');document.querySelectorAll('[data-edit-show]').forEach(b=>b.onclick=()=>{close();showForm(sh.id)})}function copyShiftCard(sid){
  if(!can())return;
  const original=db.shifts.find(x=>x.id===sid);if(!original)return;
  const snapshot=JSON.parse(JSON.stringify(original));
- modal('Copia card nel calendario','<p>Card: '+esc(snapshot.title)+'</p><p>Orario: '+esc(slotText(snapshot))+'<br>Spazio: '+esc(snapshot.space)+'<br>Tecnici: '+esc(snapshot.tech.map(tname).join(', '))+'</p><label>Data in cui incollare<input id="copyTargetDate" type="date" value="'+esc(snapshot.date)+'"></label><p>La card originale resta invariata. Verranno copiate anche mansioni, attrezzatura, note e stato.</p><div class="actions"><button type="button" class="close">Annulla</button><button type="button" id="pasteShiftCard" class="primary">Incolla nella data scelta</button></div>');
+ modal('Copia card nel calendario','<p>Card: '+esc(snapshot.title)+'</p><p>Orario: '+esc(slotText(snapshot))+'<br>Spazio: '+esc(snapshot.space)+'<br>Tecnici: '+esc(snapshot.tech.map(tname).join(', '))+'</p><p>Seleziona una o più date. La card originale resta invariata.</p><label>Date di destinazione<br><small>Scrivi una data per riga, per esempio: 2026-10-13</small><textarea id="copyTargetDates" rows="7" placeholder="2026-10-13\n2026-10-14\n2026-10-15">'+esc(snapshot.date)+'</textarea></label><p>Verranno copiate anche mansioni, attrezzatura, note e stato. Le date ripetute saranno considerate una sola volta.</p><div class="actions"><button type="button" class="close">Annulla</button><button type="button" id="pasteShiftCard" class="primary">Incolla nelle date selezionate</button></div>');
  document.getElementById('pasteShiftCard').onclick=()=>{
   if(!can())return;
-  const target=document.getElementById('copyTargetDate').value;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(target)){alert('Scegli una data valida.');return;}
-  const overlaps=db.shifts.filter(x=>x.date===target&&x.tech.some(t=>snapshot.tech.includes(t)));
-  const warning=overlaps.length?'\nAttenzione: uno o più tecnici hanno già servizi in questa data.':'';
-  if(!confirm('Incollare una nuova card «'+snapshot.title+'» il '+target+'?'+warning))return;
-  const clone=JSON.parse(JSON.stringify(snapshot));clone.id=uid();clone.date=target;delete clone.importSource;
-  db.shifts.push(clone);save();close();date=new Date(target+'T12:00:00');render();
+  const dates=[...new Set(document.getElementById('copyTargetDates').value.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean))];
+  const invalid=dates.filter(x=>!/^\d{4}-\d{2}-\d{2}$/.test(x));
+  if(!dates.length){alert('Inserisci almeno una data.');return;}
+  if(invalid.length){alert('Usa il formato AAAA-MM-GG, una data per riga. Date non valide: '+invalid.join(', '));return;}
+  const busy=dates.filter(d=>db.shifts.some(x=>x.date===d&&x.tech.some(t=>snapshot.tech.includes(t))));
+  const existing=dates.filter(d=>db.shifts.some(x=>x.date===d&&x.title===snapshot.title&&JSON.stringify(x.slots)===JSON.stringify(snapshot.slots)&&x.space===snapshot.space));
+  let msg='Incollare '+dates.length+' copie della card «'+snapshot.title+'»?';if(busy.length)msg+='\nAttenzione: in '+busy.length+' data/e almeno un tecnico ha già un servizio.';if(existing.length)msg+='\nAttenzione: in '+existing.length+' data/e esiste già una card molto simile.';
+  if(!confirm(msg))return;
+  dates.forEach(target=>{const clone=JSON.parse(JSON.stringify(snapshot));clone.id=uid();clone.date=target;db.shifts.push(clone)});
+  save();close();date=new Date(dates[0]+'T12:00:00');render();
  };
 }
 
