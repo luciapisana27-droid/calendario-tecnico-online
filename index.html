@@ -6,10 +6,9 @@
 }/* Nasconde le lettere A-B-C-D-E-F-G dei giorni */
 .coord {
   display: none !important;
-}/* Nasconde tutta la striscia riepilogativa */
-#stats { display: none !important; }
-/* Nasconde le lettere A-B-C-D-E-F-G dei giorni */
-.coord { display: none !important; }
+}
+#stats{display:none!important}
+.coord{display:none!important}
 </style></head><body><div class="app"><aside><div class="brand">Calendario Ufficio Tecnico<small>Teatro Stabile Catania</small></div><div class="eyebrow">ORGANIZZAZIONE TECNICA</div><nav id="nav"><button class="active" data-page="calendar">▦ Calendario</button><button data-page="shows">🎭 Spettacolo</button><button data-page="tech">♙ Tecnici</button><button data-page="van">🚐 Furgone: movimenti</button><button data-page="equipment">🧰 Attrezzatura per spazio</button><button data-page="settings">⚙ Impostazioni</button></nav><div class="foot">🔒 Il file parte in consultazione.<br>Usa il PIN per modificare.</div></aside><main><div class="header"><div><div class="top">PIANIFICAZIONE DEL PERSONALE</div><h1 id="title">Calendario turni</h1></div><div class="mode"><span id="mode" class="badge">🔒 Sola consultazione</span><button id="unlock">🔓 Sblocca con PIN</button><button id="lock" class="hidden">🔒 Blocca</button></div></div><p class="sub">Turni, tecnici, attrezzatura per luogo e movimenti del furgone.</p><div class="stats" id="stats"></div><div id="calendarControls"><div class="bar"><button id="previous">‹</button><span id="range" class="range"></span><button id="following">›</button><button id="today">Oggi</button><span class="spacer"></span><button id="newShift" class="primary hidden">＋ Nuovo turno</button></div><div class="filters"><input id="search" placeholder="Cerca attività, tecnico, spazio…"><select id="filterSpace"></select><select id="filterRole"></select><select id="filterStatus"><option value="">Tutti gli stati</option><option>Confermato</option><option>In attesa</option><option>Da coprire</option></select></div></div><section id="content" class="panel"></section></main></div><div id="modal" class="modal"><div class="dialog"><h2 id="modalTitle"></h2><div id="modalBody"></div></div></div><div id="toast" class="hidden" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172235;color:white;padding:12px 18px;border-radius:8px;z-index:30"></div><input id="fileInput" type="file" accept="application/json" hidden><script>
 const $=s=>document.querySelector(s);const key='calendario-ufficio-tecnico-funzionale-v11';const states=['Confermato','In attesa','Da coprire'];const spaces0=['Teatro Verga','Ridotto Verga','Scuola Platamone','Palazzo Platamone','Città e attività diffuse','Tournée e fuori sede','Altri spazi e progetti'];const roles0=['Tecnico','Luci','Illuminotecnico','Audio','Macchinista','Video','Attrezzista','Custode','Direttore di scena','Capo settore luci','Capo settore audio','Capo settore macchinisti','Capo settore video','Capo settore attrezzeria','Capo settore costruzioni e scenografia','Altro'];const names=['Filippo Tornetta','Gregorio Calderone','Lorenzo Noe','Giuseppe Noe','Gravina Marco','Pulvirenti Angelo','Di Franco Elio','Roberta Cannavo','Lucia Pisana','Agnese Failla','Sebastiano Grigoli','Salvo Costa','Alessandro Mangano','Salvatore Melarosa','Luigi Galatioto','Giuseppe Melarosa','Andrea Giardinieri'];
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random();const fmt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const pd=s=>new Date(s+'T12:00:00');const plus=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return x};const monday=d=>plus(d,-((d.getDay()+6)%7));const norm=x=>String(x||'').trim().toLowerCase();
@@ -109,27 +108,36 @@ $('#fileInput').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let 
 </script>
 <script>
 (function(){
-function stampaSettimana(){
+let ultimoPDF=null;
+function creaPDFSettimana(){
  const giorni=Array.from({length:7},(_,i)=>plus(monday(date),i));
- const da=fmt(giorni[0]),a=fmt(giorni[6]);
- const turni=db.shifts.filter(s=>s.date>=da&&s.date<=a).slice().sort((x,y)=>x.date.localeCompare(y.date));
- const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const range=giorni[0].toLocaleDateString('it-IT',{day:'numeric',month:'short'})+' – '+giorni[6].toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
- const w=window.open('','_blank');
- if(!w){alert('Apri il sito in Safari o Chrome e riprova: il browser interno può bloccare la stampa.');return;}
- let html='<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Turni tecnici '+esc(range)+'</title><style>@page{size:A4 landscape;margin:8mm}body{font:10px Arial;color:#152033}h1{font-size:19px;margin:0 0 4px}p{margin:0 0 12px;color:#64738a}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #cbd6e3;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eef1ff;text-align:center}th:first-child{width:155px}.turno{margin-bottom:6px;padding:4px;border-left:3px solid #5046e5;background:#f1f3ff}.tools{margin:14px 0}button{padding:10px 14px;font-size:15px}@media print{.tools{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>Calendario turni tecnici</h1><p>Teatro Stabile Catania · Settimana '+esc(range)+'</p><div class="tools"><button onclick="window.print()">Stampa / Salva come PDF</button></div><table><thead><tr><th>Tecnico / mansione</th>'+giorni.map(d=>'<th>'+esc(d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))+'</th>').join('')+'</tr></thead><tbody>';
+ const inizio=fmt(giorni[0]),fine=fmt(giorni[6]);
+ const turni=db.shifts.filter(s=>s.date>=inizio&&s.date<=fine);
+ const pulisci=x=>String(x??'').replace(/[–—]/g,'-').replace(/→/g,' > ').replace(/[^\x20-\xFF\n]/g,' ');
+ const hex=x=>Array.from(pulisci(x)).map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+ const wrap=(value,max)=>{const out=[];for(const line of pulisci(value).split('\n')){let current='';for(let word of line.split(/\s+/)){while(word.length>max){if(current){out.push(current);current='';}out.push(word.slice(0,max));word=word.slice(max);}if((current+' '+word).trim().length>max){out.push(current);current=word;}else current=(current+' '+word).trim();}out.push(current);}return out;};
  const righe=db.tech.map(t=>({id:t.id,nome:t.name,mansioni:roleText(t.roles)}));
  if(turni.some(s=>!(s.tech||[]).length))righe.push({id:null,nome:'Da assegnare',mansioni:'Turni senza tecnico'});
- for(const r of righe){html+='<tr><td><b>'+esc(r.nome)+'</b><br><small>'+esc(r.mansioni)+'</small></td>'+giorni.map(d=>{const elenco=turni.filter(s=>s.date===fmt(d)&&(r.id?(s.tech||[]).includes(r.id):!(s.tech||[]).length));return '<td>'+elenco.map(s=>'<div class="turno"><b>'+esc((s.slots||[]).map(q=>q.start+'–'+q.end).join(' / '))+'</b><br>'+esc(s.title)+'<br><small>'+esc(s.space)+'</small></div>').join('')+'</td>';}).join('')+'</tr>';}
- html+='</tbody></table></body></html>';w.document.write(html);w.document.close();
+ const larghezze=[154,...Array(7).fill(91)],left=25,pagine=[];let ops='',y=0;
+ const scrivi=(x,top,text,size=8)=>{ops+='BT /F1 '+size+' Tf 1 0 0 1 '+x+' '+(595-top)+' Tm <'+hex(text)+'> Tj ET\n';};
+ const rett=(x,top,w,h,fill)=>{if(fill)ops+=fill+' rg '+x+' '+(595-top-h)+' '+w+' '+h+' re f\n';ops+='0.78 0.82 0.88 RG 0.4 w '+x+' '+(595-top-h)+' '+w+' '+h+' re S 0 0 0 rg\n';};
+ const nuova=()=>{if(ops)pagine.push(ops);ops='';scrivi(25,25,'Calendario turni tecnici - Teatro Stabile Catania',15);scrivi(25,43,'Settimana '+inizio+' - '+fine,10);y=56;let x=left;['Tecnico / mansione',...giorni.map(d=>d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'}))].forEach((label,i)=>{rett(x,y,larghezze[i],25,'0.92 0.94 0.99');scrivi(x+4,y+16,label,8);x+=larghezze[i];});y+=25;};
+ nuova();
+ for(const r of righe){
+ const celle=[wrap(r.nome+'\n'+r.mansioni,32),...giorni.map(d=>{const ts=turni.filter(s=>s.date===fmt(d)&&(r.id?(s.tech||[]).includes(r.id):!(s.tech||[]).length));return wrap(ts.map(s=>(s.slots||[]).map(q=>q.start+'-'+q.end).join(' / ')+'\n'+s.title+'\n'+s.space).join('\n\n'),18);})];
+ const n=Math.max(...celle.map(c=>c.length));let offset=0;
+ while(offset<n){if(y+30>555)nuova();const count=Math.min(n-offset,Math.floor((555-y-10)/10));if(count<1){nuova();continue;}const h=Math.max(30,count*10+10);let x=left;for(let i=0;i<8;i++){rett(x,y,larghezze[i],h,i===0?'0.97 0.98 0.99':null);celle[i].slice(offset,offset+count).forEach((line,k)=>scrivi(x+4,y+13+k*10,line,8));x+=larghezze[i];}y+=h;offset+=count;}
+ }
+ if(ops)pagine.push(ops);
+ const objs=[null,'<< /Type /Catalog /Pages 2 0 R >>','', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>'];
+ const kids=[];pagine.forEach((stream,i)=>{stream+='BT /F1 8 Tf 1 0 0 1 25 18 Tm <'+hex('Pagina '+(i+1)+' di '+pagine.length)+'> Tj ET\n';const pageId=objs.length;const contentId=pageId+1;kids.push(pageId+' 0 R');objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 3 0 R >> >> /Contents '+contentId+' 0 R >>');objs.push('<< /Length '+stream.length+' >>\nstream\n'+stream+'endstream');});
+ objs[2]='<< /Type /Pages /Count '+kids.length+' /Kids ['+kids.join(' ')+'] >>';let pdf='%PDF-1.4\n',offsets=[0];for(let i=1;i<objs.length;i++){offsets[i]=pdf.length;pdf+=i+' 0 obj\n'+objs[i]+'\nendobj\n';}const xref=pdf.length;pdf+='xref\n0 '+objs.length+'\n0000000000 65535 f \n';for(let i=1;i<objs.length;i++)pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';pdf+='trailer\n<< /Size '+objs.length+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+ return {blob:new Blob([pdf],{type:'application/pdf'}),nome:'Turni_'+inizio+'_'+fine+'.pdf'};
 }
-function aggiungiPulsante(){
- const barra=document.querySelector('#calendarControls .bar');
- if(!barra||document.getElementById('printWeek'))return;
- const b=document.createElement('button');b.id='printWeek';b.type='button';b.textContent='Stampa settimana / PDF';b.style.whiteSpace='nowrap';b.onclick=stampaSettimana;barra.appendChild(b);
-}
-window.addEventListener('load',aggiungiPulsante);
-const osserva=new MutationObserver(aggiungiPulsante);window.addEventListener('load',()=>osserva.observe(document.body,{childList:true,subtree:true}));
+function scarica(){try{ultimoPDF=creaPDFSettimana();const url=URL.createObjectURL(ultimoPDF.blob);const a=document.createElement('a');a.href=url;a.download=ultimoPDF.nome;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);document.getElementById('condividiPDFSettimana').hidden=false;}catch(e){console.error(e);alert('Impossibile creare il PDF: '+e.message);}}
+async function condividi(){if(!ultimoPDF)return;try{const f=new File([ultimoPDF.blob],ultimoPDF.nome,{type:'application/pdf'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Turni tecnici settimanali'});}else{alert('La condivisione file non è disponibile in questo browser. Usa Scarica PDF settimana.');}}catch(e){if(e.name!=='AbortError')alert('Condivisione non riuscita: '+e.message);}}
+function pulsanti(){const bar=document.querySelector('#calendarControls .bar');if(!bar||document.getElementById('scaricaPDFSettimana'))return;const b=document.createElement('button');b.id='scaricaPDFSettimana';b.type='button';b.textContent='Scarica PDF settimana';b.onclick=scarica;bar.appendChild(b);const share=document.createElement('button');share.id='condividiPDFSettimana';share.type='button';share.textContent='Condividi / Salva PDF';share.hidden=true;share.onclick=condividi;bar.appendChild(share);}
+window.addEventListener('load',pulsanti);
 })();
 </script>
 </body></html>
