@@ -105,32 +105,21 @@ $('#fileInput').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let 
 </script>
 <script>
 (function(){
-function exportMonth(){
- const current=typeof date!=='undefined'?date:new Date();
- const initial=current.getFullYear()+'-'+String(current.getMonth()+1).padStart(2,'0');
- const value=prompt('Mese da esportare (AAAA-MM), ad esempio 2026-10:',initial);
- if(value===null)return;
- if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(value)){alert('Inserisci il mese nel formato AAAA-MM.');return;}
- const shifts=db.shifts.filter(s=>s.date&&s.date.startsWith(value)).slice().sort((a,b)=>a.date.localeCompare(b.date));
+function stampaSettimana(){
+ const giorni=Array.from({length:7},(_,i)=>plus(monday(date),i));
+ const da=fmt(giorni[0]),a=fmt(giorni[6]);
+ const turni=db.shifts.filter(s=>s.date>=da&&s.date<=a).slice().sort((x,y)=>x.date.localeCompare(y.date));
+ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const range=giorni[0].toLocaleDateString('it-IT',{day:'numeric',month:'short'})+' – '+giorni[6].toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
  const w=window.open('','_blank');
- if(!w){alert('Consenti le finestre popup per esportare il calendario.');return;}
- const year=Number(value.slice(0,4)),month=Number(value.slice(5))-1;
- const last=new Date(year,month+1,0).getDate();
- const title=new Date(year,month,1).toLocaleDateString('it-IT',{month:'long',year:'numeric'});
- const e=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- let html='<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Turni tecnici '+e(title)+'</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px Arial;color:#152033}h1{font-size:20px}h2{font-size:15px}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #cbd6e3;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eef1ff}th:first-child{width:145px}.turno{margin-bottom:7px;padding:3px;border-left:2px solid #5046e5;background:#f1f3ff}.page{break-before:page}.tools{margin:15px 0}button{padding:10px}@media print{.tools{display:none}tr{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>Calendario turni tecnici — '+e(title)+'</h1><p>Teatro Stabile Catania · Tutti i turni del mese selezionato</p><div class="tools"><button onclick="window.print()">Salva come PDF / Stampa</button></div>';
- for(let first=1;first<=last;first+=7){
- const stop=Math.min(first+6,last),days=Array.from({length:stop-first+1},(_,i)=>first+i);
- html+='<section'+(first>1?' class="page"':'')+'><h2>'+first+'–'+stop+' '+e(title)+'</h2><table><thead><tr><th>Tecnico / mansione</th>'+days.map(d=>'<th>'+e(new Date(year,month,d).toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))+'</th>').join('')+'</tr></thead><tbody>';
- const rows=db.tech.map(t=>({name:t.name,roles:t.roles,id:t.id}));
- if(shifts.some(s=>!s.tech||!s.tech.length))rows.push({name:'Da assegnare',roles:[],id:null});
- for(const t of rows){html+='<tr><td><b>'+e(t.name)+'</b><br>'+e((t.roles||[]).join(' · '))+'</td>'+days.map(d=>{const key=value+'-'+String(d).padStart(2,'0');const list=shifts.filter(s=>s.date===key&&(t.id?(s.tech||[]).includes(t.id):!(s.tech||[]).length));return '<td>'+list.map(s=>'<div class="turno"><b>'+e((s.slots||[]).map(x=>x.start+'–'+x.end).join(' / '))+'</b><br>'+e(s.title)+'<br>'+e(s.space)+'</div>').join('')+'</td>';}).join('')+'</tr>';}
- html+='</tbody></table></section>';
- }
- html+='</body></html>';w.document.write(html);w.document.close();
- w.onload=()=>w.print();
+ if(!w){alert('Consenti le finestre popup per stampare o salvare il PDF.');return;}
+ let html='<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Turni tecnici '+esc(range)+'</title><style>@page{size:A4 landscape;margin:8mm}body{font:10px Arial;color:#152033}h1{font-size:19px;margin:0 0 4px}p{margin:0 0 12px;color:#64738a}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #cbd6e3;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eef1ff;text-align:center}th:first-child{width:155px}.turno{margin-bottom:6px;padding:4px;border-left:3px solid #5046e5;background:#f1f3ff;break-inside:avoid}.tools{margin:14px 0}button{padding:9px 14px;font-size:14px}@media print{.tools{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>Calendario turni tecnici</h1><p>Teatro Stabile Catania · Settimana '+esc(range)+'</p><div class="tools"><button onclick="window.print()">Stampa / Salva come PDF</button></div><table><thead><tr><th>Tecnico / mansione</th>'+giorni.map(d=>'<th>'+esc(d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))+'</th>').join('')+'</tr></thead><tbody>';
+ const righe=db.tech.map(t=>({id:t.id,nome:t.name,mansioni:roleText(t.roles)}));
+ if(turni.some(s=>!(s.tech||[]).length))righe.push({id:null,nome:'Da assegnare',mansioni:'Turni senza tecnico'});
+ for(const r of righe){html+='<tr><td><b>'+esc(r.nome)+'</b><br><small>'+esc(r.mansioni)+'</small></td>'+giorni.map(d=>{const elenco=turni.filter(s=>s.date===fmt(d)&&(r.id?(s.tech||[]).includes(r.id):!(s.tech||[]).length));return '<td>'+elenco.map(s=>'<div class="turno"><b>'+esc((s.slots||[]).map(q=>q.start+'–'+q.end).join(' / '))+'</b><br>'+esc(s.title)+'<br><small>'+esc(s.space)+'</small></div>').join('')+'</td>';}).join('')+'</tr>';}
+ html+='</tbody></table></body></html>';w.document.write(html);w.document.close();w.onload=()=>w.print();
 }
-window.addEventListener('load',()=>{const bar=document.querySelector('#calendarControls .bar');if(!bar)return;const b=document.createElement('button');b.type='button';b.textContent='Esporta mese PDF';b.onclick=exportMonth;bar.appendChild(b);});
+window.addEventListener('load',()=>{const barra=document.querySelector('#calendarControls .bar');if(!barra)return;const b=document.createElement('button');b.type='button';b.textContent='Stampa settimana / PDF';b.onclick=stampaSettimana;barra.appendChild(b);});
 })();
 </script>
 </body></html>
