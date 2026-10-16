@@ -8,12 +8,12 @@ self.addEventListener("push", event => {
     body: data.body || "Il calendario è stato aggiornato.",
     tag: data.tag || "calendar-update",
     icon: new URL("./calendar-icon-192.png", self.registration.scope).href,
-    data: { url: target },
+    data: { url: data.url || target },
   }));
 });
 self.addEventListener("notificationclick", event => {
   event.notification.close();
-  const target = new URL("./", self.registration.scope).href;
+  const target = event.notification.data?.url || new URL("./", self.registration.scope).href;
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type:"window", includeUncontrolled:true });
     for (const client of windows) {
