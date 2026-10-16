@@ -12,15 +12,7 @@
 
 .ref{display:none!important}.rep-day{border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0}.rep-day>label{display:flex;gap:8px;align-items:center}.rep-time-wrap{display:flex;gap:8px;margin:6px 0}.rep-time-wrap input{flex:1;min-width:0}.rep-more{margin-top:5px}.mobile-days{display:none}
 @media(max-width:800px){.header{display:block}.header h1{font-size:25px}.mode{flex-wrap:wrap;margin-top:10px}.sub{display:none}.range{min-width:0;flex:1;font-size:14px}.spacer{display:none}main{padding:12px}input,select,textarea{font-size:16px}.filters{display:grid;grid-template-columns:1fr}.filters input,.filters select{width:100%;min-width:0}.mobile-days{display:flex;gap:4px;overflow:auto;padding:8px}.mobile-days button{flex:1;min-width:40px;padding:9px 3px;font-size:12px}.mobile-days b{display:block;font-size:18px}.mobile-days .selected{background:var(--accent);color:white}.grid{min-width:0}.weekhead{display:none}.weekrow{display:block;background:white;padding:12px;border-bottom:8px solid var(--bg)}.label{background:white;border:0;padding:0 0 8px}.label b{font-size:16px}.label small{font-size:12px}.cell{border:0;background:white;padding:0;min-height:30px}.cell.mobile-off{display:none}.card{font-size:14px!important;padding:12px!important;line-height:1.5}.section{font-size:12px;padding:12px}.dialog{padding:16px}}
-</style>
-<link rel="manifest" href="./manifest.webmanifest">
-<meta name="theme-color" content="#172235">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Calendario Tecnico">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-</head><body><div class="app"><aside><div class="brand">Calendario Ufficio Tecnico<small>Teatro Stabile Catania</small></div><div class="eyebrow">ORGANIZZAZIONE TECNICA</div><nav id="nav"><button class="active" data-page="calendar">▦ Calendario</button><button data-page="shows">🎭 Spettacolo</button><button data-page="tech">♙ Tecnici</button><button data-page="van">🚐 Furgone: movimenti</button><button data-page="equipment">🧰 Attrezzatura per spazio</button><button data-page="settings">⚙ Impostazioni</button></nav><div class="foot">🔒 Il file parte in consultazione.<br>Usa il PIN per modificare.</div></aside><main><div class="header"><div><div class="top">PIANIFICAZIONE DEL PERSONALE</div><h1 id="title">Calendario turni</h1></div><div class="mode"><span id="mode" class="badge">🔒 Sola consultazione</span><button id="unlock">🔓 Sblocca con PIN</button><button id="lock" class="hidden">🔒 Blocca</button></div></div><p class="sub">Turni, tecnici, attrezzatura per luogo e movimenti del furgone.</p><div class="stats" id="stats"></div><div id="calendarControls"><div class="bar"><button id="previous">‹</button><span id="range" class="range"></span><button id="following">›</button><button id="today">Oggi</button><span class="spacer"></span><button id="newShift" class="primary hidden">＋ Nuovo turno</button></div><div class="filters"><input id="search" placeholder="Cerca attività, tecnico, spazio…"><select id="filterSpace"></select><select id="filterRole"></select><select id="filterStatus"><option value="">Tutti gli stati</option><option>Confermato</option><option>In attesa</option><option>Da coprire</option></select></div></div><section id="content" class="panel"></section></main></div><div id="modal" class="modal"><div class="dialog"><h2 id="modalTitle"></h2><div id="modalBody"></div></div></div><div id="toast" class="hidden" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172235;color:white;padding:12px 18px;border-radius:8px;z-index:30"></div><input id="fileInput" type="file" accept="application/json" hidden><script>
+</style><link rel="manifest" href="./calendar.webmanifest"><link rel="apple-touch-icon" href="./calendar-icon-192.png"><meta name="theme-color" content="#172235"></head><body><div class="app"><aside><div class="brand">Calendario Ufficio Tecnico<small>Teatro Stabile Catania</small></div><div class="eyebrow">ORGANIZZAZIONE TECNICA</div><nav id="nav"><button class="active" data-page="calendar">▦ Calendario</button><button data-page="shows">🎭 Spettacolo</button><button data-page="tech">♙ Tecnici</button><button data-page="van">🚐 Furgone: movimenti</button><button data-page="equipment">🧰 Attrezzatura per spazio</button><button data-page="settings">⚙ Impostazioni</button></nav><div class="foot">🔒 Il file parte in consultazione.<br>Usa il PIN per modificare.</div></aside><main><div class="header"><div><div class="top">PIANIFICAZIONE DEL PERSONALE</div><h1 id="title">Calendario turni</h1></div><div class="mode"><span id="mode" class="badge">🔒 Sola consultazione</span><button id="unlock">🔓 Sblocca con PIN</button><button id="lock" class="hidden">🔒 Blocca</button></div></div><p class="sub">Turni, tecnici, attrezzatura per luogo e movimenti del furgone.</p><div class="stats" id="stats"></div><div id="calendarControls"><div class="bar"><button id="previous">‹</button><span id="range" class="range"></span><button id="following">›</button><button id="today">Oggi</button><span class="spacer"></span><button id="newShift" class="primary hidden">＋ Nuovo turno</button></div><div class="filters"><input id="search" placeholder="Cerca attività, tecnico, spazio…"><select id="filterSpace"></select><select id="filterRole"></select><select id="filterStatus"><option value="">Tutti gli stati</option><option>Confermato</option><option>In attesa</option><option>Da coprire</option></select></div></div><section id="content" class="panel"></section></main></div><div id="modal" class="modal"><div class="dialog"><h2 id="modalTitle"></h2><div id="modalBody"></div></div></div><div id="toast" class="hidden" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172235;color:white;padding:12px 18px;border-radius:8px;z-index:30"></div><input id="fileInput" type="file" accept="application/json" hidden><script>
 const $=s=>document.querySelector(s);const key='calendario-ufficio-tecnico-funzionale-v11';const states=['Confermato','In attesa','Da coprire'];const spaces0=['Teatro Verga','Ridotto Verga','Scuola Platamone','Palazzo Platamone','Città e attività diffuse','Tournée e fuori sede','Altri spazi e progetti'];const roles0=['Tecnico','Luci','Illuminotecnico','Audio','Macchinista','Video','Attrezzista','Custode','Direttore di scena','Capo settore luci','Capo settore audio','Capo settore macchinisti','Capo settore video','Capo settore attrezzeria','Capo settore costruzioni e scenografia','Altro'];const names=['Filippo Tornetta','Gregorio Calderone','Lorenzo Noe','Giuseppe Noe','Gravina Marco','Pulvirenti Angelo','Di Franco Elio','Roberta Cannavo','Lucia Pisana','Agnese Failla','Sebastiano Grigoli','Salvo Costa','Alessandro Mangano','Salvatore Melarosa','Luigi Galatioto','Giuseppe Melarosa','Andrea Giardinieri'];
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random();const fmt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const pd=s=>new Date(s+'T12:00:00');const plus=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return x};const monday=d=>plus(d,-((d.getDay()+6)%7));const norm=x=>String(x||'').trim().toLowerCase();
 function starter(){return{pin:'1234',spaces:[...spaces0],roles:[...roles0],tech:names.map((name,i)=>({id:'t'+i,name,roles:['Tecnico'],contact:''})),vehicles:[{id:'v1',name:'Furgone',notes:''}],moves:[],shifts:[],shows:[],equipmentEvents:[]}}let db;try{let cached=JSON.parse(localStorage.getItem(key));db=cached&&cached.tech?cached:starter()}catch{db=starter()}for(const k of ['spaces','roles','tech','vehicles','moves','shifts','shows','equipmentEvents'])if(!Array.isArray(db[k]))db[k]=starter()[k];if(!db.pin)db.pin='1234';db.shifts.forEach(s=>{if(!Array.isArray(s.slots))s.slots=[{start:s.start||'09:00',end:s.end||'13:00'}];if(!Array.isArray(s.roles))s.roles=[s.role||'Tecnico'];if(!Array.isArray(s.tech))s.tech=[];if(typeof s.equipment!=='string')s.equipment='';if(typeof s.van!=='boolean')s.van=false});db.shows.forEach(sh=>{if(!Array.isArray(sh.spaces))sh.spaces=[sh.space||''];if(typeof sh.time!=='string')sh.time='';if(typeof sh.equipment!=='string')sh.equipment='';if(typeof sh.notes!=='string')sh.notes='';if(typeof sh.driveLink!=='string')sh.driveLink=''});let page='calendar',date=new Date(),unlocked=false;const SUPABASE_URL='https://ohmofthdkjkttdyjuxwv.supabase.co',SUPABASE_KEY='sb_publishable_KXaMggWSjqvWXGYqgxNjsQ_7R4cWh_z',SUPABASE_TABLE='data',SUPABASE_ROW_ID=1;let remoteReady=false,savingRemote=false;const cache=()=>localStorage.setItem(key,JSON.stringify(db));const save=()=>{cache();pushRemote()};async function pushRemote(){if(!remoteReady||savingRemote)return;try{savingRemote=true;let r=await fetch(SUPABASE_URL+'/rest/v1/'+SUPABASE_TABLE+'?id=eq.'+SUPABASE_ROW_ID,{method:'PATCH',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({content:db})});if(!r.ok)throw Error(await r.text());setStatus('☁️ Salvato online')}catch(e){console.warn(e);setStatus('⚠️ Connessione Supabase non riuscita')}finally{savingRemote=false}}async function pullRemote(){try{let r=await fetch(SUPABASE_URL+'/rest/v1/'+SUPABASE_TABLE+'?id=eq.'+SUPABASE_ROW_ID+'&select=content',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw Error(await r.text());let rows=await r.json(),remote=rows[0]&&rows[0].content;if(remote&&remote.tech){db=remote;cache()}remoteReady=true;if(!remote||!remote.tech)await pushRemote();render();setStatus('☁️ Sincronizzato')}catch(e){console.warn(e);setStatus('⚠️ Connessione Supabase non riuscita')}}function setStatus(t){let x=document.getElementById('syncStatus');if(x)x.textContent=t}const toast=t=>{let e=$('#toast');e.textContent=t;e.classList.remove('hidden');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.add('hidden'),3500)};const modal=(t,b)=>{$('#modalTitle').textContent=t;$('#modalBody').innerHTML=b;$('#modal').classList.add('show')};const close=()=>$('#modal').classList.remove('show');const tname=id=>db.tech.find(x=>x.id===id)?.name||'';const vname=id=>db.vehicles.find(x=>x.id===id)?.name||'';const roleText=a=>a.join(', ');const slotText=s=>s.slots.map(x=>x.start+'–'+x.end+(x.end<=x.start?' (+1g)':'')).join(' · ');const hours=s=>s.slots.reduce((n,x)=>{let a=new Date(s.date+'T'+x.start),b=new Date(s.date+'T'+x.end);if(b<=a)b.setDate(b.getDate()+1);return n+(b-a)/36e5},0);const need=s=>Math.max(0,(+s.need||1)-s.tech.length);const needsEquipment=s=>s.equipment.split('\n').map(x=>x.trim()).filter(Boolean);const allSpaces=()=>[...new Set([...db.spaces,...db.shifts.map(s=>s.space)].filter(Boolean))];const can=()=>{if(!unlocked){toast('Prima premi “Sblocca con PIN”.');return false}return true};
@@ -205,6 +197,100 @@ function scarica(){try{ultimoPDF=creaPDFSettimana();window.location.assign(URL.c
 async function condividi(){try{ultimoPDF=creaPDFSettimana();const f=new File([ultimoPDF.blob],ultimoPDF.nome,{type:'application/pdf'});if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'Turni tecnici settimanali'});else scarica();}catch(e){if(e.name!=='AbortError')alert(e.message);}}
 function pulsanti(){const bar=document.querySelector('#calendarControls .bar');if(!bar||document.getElementById('scaricaPDFSettimana'))return;const b=document.createElement('button');b.id='scaricaPDFSettimana';b.type='button';b.textContent='Apri PDF settimana';b.onclick=scarica;bar.appendChild(b);const share=document.createElement('button');share.id='condividiPDFSettimana';share.type='button';share.textContent='Condividi / Salva PDF';share.hidden=false;share.onclick=condividi;bar.appendChild(share);}
 window.addEventListener('load',pulsanti);
+})();
+</script>
+<script>
+(() => {
+  const API = "https://ohmofthdkjkttdyjuxwv.supabase.co/functions/v1/calendar-push";
+  const STORE = "calendar-push-device-v1";
+  let busy = false;
+  const decode = s => Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")), c => c.charCodeAt(0));
+  const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2,"0")).join("");
+  function device() {
+    let d; try { d = JSON.parse(localStorage.getItem(STORE) || "null"); } catch {}
+    if (!d?.token) { d = { token: hex(crypto.getRandomValues(new Uint8Array(32))) }; localStorage.setItem(STORE, JSON.stringify(d)); }
+    return d;
+  }
+  async function call(action, body) {
+    const r = await fetch(API + "?action=" + action, {
+      method: "POST", headers: { "Content-Type":"application/json" }, body: JSON.stringify(body),
+    });
+    const data = await r.json().catch(() => ({ error:"Risposta server non leggibile." }));
+    if (!r.ok) throw new Error(data.error || "Errore " + r.status);
+    return data;
+  }
+  async function registration() {
+    if (!window.isSecureContext || !("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+      throw new Error("Notifiche non disponibili. Su iPhone aggiungi prima il calendario alla schermata Home e aprilo dall'icona.");
+    }
+    const r = await navigator.serviceWorker.register("./calendar-push-sw.js", { scope:"./" });
+    if (!r.active) {
+      await new Promise((resolve, reject) => {
+        const worker = r.installing || r.waiting;
+        if (!worker) { reject(new Error("Service worker non pronto. Riapri la pagina.")); return; }
+        const timer = setTimeout(() => reject(new Error("Service worker non pronto. Riapri la pagina.")),15000);
+        worker.addEventListener("statechange", () => {
+          if (worker.state === "activated") { clearTimeout(timer); resolve(); }
+          if (worker.state === "redundant") { clearTimeout(timer); reject(new Error("Service worker non attivato.")); }
+        });
+      });
+    }
+    return r;
+  }
+  async function enable() {
+    if (busy) return;
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    if (ios && !standalone) { alert("Su iPhone: Safari → Condividi → Aggiungi alla schermata Home. Poi apri il calendario dall'icona e premi Attiva notifiche."); return; }
+    if (!("Notification" in window)) { alert("Browser non compatibile con le notifiche."); return; }
+    busy = true;
+    try {
+      // Request directly from the user's click, before asynchronous network work.
+      const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+      if (permission !== "granted") throw new Error("Permesso non concesso. Se bloccato, riabilitalo nelle impostazioni del browser.");
+      const reg = await registration();
+      const response = await fetch(API + "?action=config", { cache:"no-store" });
+      const config = await response.json();
+      if (!response.ok || !config.publicKey) throw new Error(config.error || "Configurazione notifiche non disponibile.");
+      const publicBytes = decode(config.publicKey);
+      const d = device();
+      let sub = await reg.pushManager.getSubscription();
+      if (sub?.options.applicationServerKey && hex(new Uint8Array(sub.options.applicationServerKey)) !== hex(publicBytes)) {
+        if (d.endpoint) { try { await call("unsubscribe", { endpoint:d.endpoint, token:d.token }); } catch {} }
+        await sub.unsubscribe(); sub = null;
+      }
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:publicBytes });
+      d.endpoint = sub.endpoint;
+      localStorage.setItem(STORE, JSON.stringify(d));
+      await call("subscribe", { subscription:sub.toJSON(), token:d.token });
+      alert("Notifiche attivate su questo dispositivo. Riceverai gli avvisi per le prossime modifiche salvate online.");
+    } catch (e) { alert("Notifiche non attivate: " + e.message); }
+    finally { busy = false; }
+  }
+  async function disable() {
+    if (busy) return; busy = true;
+    try {
+      const d = device();
+      const reg = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration(new URL("./",location.href).href) : null;
+      const sub = reg ? await reg.pushManager.getSubscription() : null;
+      if (d.endpoint) await call("unsubscribe", { endpoint:d.endpoint, token:d.token });
+      if (sub) await sub.unsubscribe();
+      localStorage.removeItem(STORE);
+      alert("Notifiche disattivate su questo dispositivo.");
+    } catch (e) { alert("Impossibile completare la disattivazione: " + e.message); }
+    finally { busy = false; }
+  }
+  function mount() {
+    if (document.getElementById("calendarPushControls")) return;
+    const box = document.createElement("div"); box.id = "calendarPushControls";
+    box.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin:12px 0";
+    const on = document.createElement("button"); on.type="button"; on.textContent="Attiva notifiche"; on.onclick=enable;
+    const off = document.createElement("button"); off.type="button"; off.textContent="Disattiva notifiche"; off.onclick=disable;
+    box.append(on,off);
+    const header=document.querySelector("main .header");
+    if (header) header.after(box); else document.body.prepend(box);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded",mount); else mount();
 })();
 </script>
 </body></html>
