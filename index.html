@@ -342,4 +342,6 @@ notice.onclick=async()=>{const b=q('#calendarPushControls')?.querySelectorAll('b
 const moved=new Map();function layout(){if(mq.matches){for(const selector of ['main .header .mode','#syncStatus','#scaricaPDFSettimana','#condividiPDFSettimana']){const el=q(selector);if(el&&!moved.has(el)){const marker=document.createComment('original-position');el.before(marker);moved.set(el,marker);panel.append(el);}}}else{for(const [el,marker]of moved)marker.replaceWith(el);moved.clear();panel.hidden=true;option.setAttribute('aria-expanded','false');}filter.hidden=controls.classList.contains('hidden');const b=q('#nav button.active');top.querySelector('span').textContent='TSC · '+(b?b.textContent.replace(/^[^A-Za-zÀ-ÿ]+/,''):'Calendario');}
 q('#nav').addEventListener('click',()=>{aside.classList.remove('tsc-open');top.querySelector('button').setAttribute('aria-expanded','false');setTimeout(layout,0);});new MutationObserver(layout).observe(controls,{attributes:true,attributeFilter:['class']});mq.addEventListener('change',layout);window.addEventListener('focus',refresh);layout();refresh();}
 if(document.readyState==='complete')init();else window.addEventListener('load',init);})();
-</script></body></html>
+</script></script>
+<script src="./riposi-ferie.js"></script>
+</body></html></body></html>
